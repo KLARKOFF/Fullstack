@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Machine } from '../types';
-import MachineIcon from '../assets/washing-machine-svgrepo-com.svg';
 
 interface MachineCardProps {
   machine: Machine;

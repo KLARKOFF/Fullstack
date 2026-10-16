@@ -25,13 +25,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfile, isLoggedIn, userN
             <button onClick={onOpenProfile} className="profile-btn">
               Войти
             </button>
-            <button 
-              onClick={onOpenProfile} 
-              className="profile-btn" 
-              style={{ backgroundColor: '#047857', color: '#ffffff' }}
-            >
-              Регистрация
-            </button>
           </div>
         )}
       </div>
