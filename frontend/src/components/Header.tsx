@@ -10,7 +10,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenProfile, isLoggedIn, userN
   return (
     <header className="header">
       <div className="header-left">
-        <div className="header-logo">🧺</div>
         <span>Ваша прачечная</span>
       </div>
 

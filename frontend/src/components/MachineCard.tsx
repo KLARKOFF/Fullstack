@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Machine } from '../types';
+import MachineIcon from '../assets/washing-machine-svgrepo-com.svg';
 
 interface MachineCardProps {
   machine: Machine;
@@ -7,7 +8,6 @@ interface MachineCardProps {
 }
 
 export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) => {
-  // Выбираем класс в зависимости от статуса
   const getStatusClass = () => {
     switch (machine.status) {
       case 'free': return 'card-free';
@@ -21,7 +21,6 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
       onClick={() => onSelect(machine.id)}
       className={`machine-card ${getStatusClass()}`}
     >
-      {/* Верхняя строка */}
       <div className="card-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline' }}>
@@ -32,13 +31,8 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
           </div>
           <span className="machine-capacity">до {machine.capacity} кг</span>
         </div>
-        
-        <div className="machine-icon">
-          {machine.type === 'washer' ? '🌀' : '💨'}
-        </div>
       </div>
 
-      {/* Центральная часть */}
       <div>
         {machine.status === 'free' && (
           <div>
@@ -68,7 +62,6 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
         )}
       </div>
 
-      {/* Нижняя часть */}
       <div>
         {machine.status === 'in_use' ? (
           <div className="progress-container">
