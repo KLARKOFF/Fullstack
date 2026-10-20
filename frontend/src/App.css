@@ -105,16 +105,6 @@ body {
   color: #888;
 }
 
-.machine-icon svg {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-}
-
 .status-badge {
   display: inline-block;
   padding: 4px 8px;
