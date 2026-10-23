@@ -1,33 +1,43 @@
 import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import type { User } from '../types';
 
 interface HeaderProps {
-  onOpenProfile: () => void;
-  isLoggedIn: boolean;
-  userName?: string;
+  laundryName?: string;
+  user: User | null;
+  onLoginClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenProfile, isLoggedIn, userName }) => {
+export const Header: React.FC<HeaderProps> = ({ laundryName, user, onLoginClick }) => {
   return (
     <header className="header">
       <div className="header-left">
-        <span>Ваша прачечная</span>
+        <Link to="/" className="header-link">
+          {laundryName || 'Ваша прачечная'}
+        </Link>
       </div>
 
-      <h1 className="header-title">Dryers & Washers</h1>
+      <h1 className="header-title">
+        <Link to="/" className="header-link">Dryers & Washers</Link>
+      </h1>
 
-      <div>
-        {isLoggedIn ? (
-          <button onClick={onOpenProfile} className="profile-btn">
-            👤 {userName || 'Профиль'}
-          </button>
-        ) : (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={onOpenProfile} className="profile-btn">
-              Войти
-            </button>
-          </div>
+      <nav className="header-nav">
+        {user?.role === 'admin' && (
+          <NavLink to="/admin" className="profile-btn">
+            ⚙️ Админ-панель
+          </NavLink>
         )}
-      </div>
+
+        {user ? (
+          <NavLink to="/profile" className="profile-btn">
+            👤 {user.name}
+          </NavLink>
+        ) : (
+          <button onClick={onLoginClick} className="profile-btn">
+            Войти
+          </button>
+        )}
+      </nav>
     </header>
   );
 };

@@ -1,130 +1,154 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Header } from './components/Header';
-import { MachineCard } from './components/MachineCard';
 import { AuthModal } from './components/AuthModal';
-import { BookingModal } from './components/BookingModal';
-import { ProfileModal } from './components/ProfileModal';
-import type { Machine, User, Booking } from './types';
+import { HomePage } from './pages/HomePage';
+import { ProfilePage } from './pages/ProfilePage';
+import { AdminPage } from './pages/AdminPage';
+import * as api from './api';
+import type { Booking, Laundry, Machine, User } from './types';
 import './App.css';
 
-const INITIAL_MACHINES: Machine[] = [
-  { id: '01', type: 'washer', capacity: 6, status: 'free' },
-  { id: '02', type: 'washer', capacity: 6, status: 'in_use', timeLeft: '24 мин', endTime: '14:56', currentStage: 'Полоскание', progress: 60 },
-  { id: '03', type: 'washer', capacity: 6, status: 'waiting', endTime: '14:24' },
-  { id: '04', type: 'washer', capacity: 8, status: 'free' },
-  { id: '05', type: 'dryer', capacity: 8, status: 'in_use', timeLeft: '12 мин', endTime: '14:44', currentStage: 'Сушка', progress: 80 },
-  { id: '06', type: 'dryer', capacity: 8, status: 'free' },
-];
-
 export default function App() {
-  const [machines] = useState<Machine[]>(INITIAL_MACHINES);
-  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [laundry, setLaundry] = useState<Laundry | null>(null);
+  const [user, setUser] = useState<User | null>(() => api.getSessionUser());
   const [bookings, setBookings] = useState<Booking[]>([]);
-
-  // Состояния модалок
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [selectedMachineForBooking, setSelectedMachineForBooking] = useState<Machine | null>(null);
 
-  // Обработчик клика по машине
-  const handleSelectMachine = (id: string) => {
-    const machine = machines.find((m) => m.id === id);
-    if (machine && machine.status === 'free') {
-      setSelectedMachineForBooking(machine);
-    } else {
-      alert('Эта машина сейчас занята или ожидает выгрузки.');
-    }
+  useEffect(() => {
+    api.getMachines().then(setMachines);
+    api.getLaundry().then(setLaundry);
+  }, []);
+
+  const userId = user?.id;
+  useEffect(() => {
+    if (userId) api.getBookings(userId).then(setBookings);
+  }, [userId]);
+
+  const handleLogin = async (name: string, email: string) => {
+    setUser(await api.login(name, email));
   };
 
-  // Обработчик открытия профиля или входа
-  const handleOpenProfileOrAuth = () => {
-    if (user) {
-      setIsProfileOpen(true);
-    } else {
-      setIsAuthOpen(true);
-    }
-  };
-
-  // Успешный вход / регистрация
-  const handleLogin = (name: string, email: string) => {
-    setUser({ name, email });
-  };
-
-  // Выход из системы
   const handleLogout = () => {
+    api.logout();
     setUser(null);
     setBookings([]);
+    navigate('/');
   };
 
-  // Создание брони
-  const handleConfirmBooking = (machineId: string, time: string) => {
-    const machine = machines.find((m) => m.id === machineId);
-    if (!machine) return;
+  const handleUpdateProfile = async (patch: api.ProfileUpdate) => {
+    if (!user) return;
+    setUser(await api.updateProfile(user.id, patch));
+  };
 
-    const newBooking: Booking = {
-      id: Date.now().toString(),
+  const handleConfirmBooking = async (machineId: string, time: string) => {
+    const machine = machines.find((m) => m.id === machineId);
+    if (!machine || !user) return;
+
+    const created = await api.createBooking({
+      userId: user.id,
       machineId,
       machineType: machine.type,
       time,
       date: 'Сегодня',
-    };
+    });
 
-    setBookings([...bookings, newBooking]);
-    alert(`Машина №${machineId} успешно забронирована на ${time}!`);
+    setBookings((prev) => [...prev, created]);
+    alert(`Машина №${machineId} забронирована на ${time}`);
   };
 
-  // Отмена брони
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings(bookings.filter((b) => b.id !== bookingId));
+  const handleCancelBooking = async (bookingId: string) => {
+    await api.cancelBooking(bookingId);
+    setBookings((prev) => prev.filter((b) => b.id !== bookingId));
   };
+
+  const handleRenameLaundry = async (name: string) => {
+    setLaundry(await api.updateLaundry(name));
+  };
+
+  const handleCreateMachine = async (data: api.MachineInput) => {
+    await api.createMachine(data);
+    setMachines(await api.getMachines());
+  };
+
+  const handleUpdateMachine = async (id: string, patch: api.MachineUpdate) => {
+    const updated = await api.updateMachine(id, patch);
+    setMachines((prev) => prev.map((m) => (m.id === id ? updated : m)));
+  };
+
+  const handleDeleteMachine = async (id: string) => {
+    await api.deleteMachine(id);
+    setMachines((prev) => prev.filter((m) => m.id !== id));
+    setBookings((prev) => prev.filter((b) => b.machineId !== id));
+  };
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <div className="app-container">
-      <Header 
-        isLoggedIn={!!user} 
-        userName={user?.name}
-        onOpenProfile={handleOpenProfileOrAuth} 
+      <Header
+        laundryName={laundry?.name}
+        user={user}
+        onLoginClick={() => setIsAuthOpen(true)}
       />
 
       <main className="main-content">
-        <div style={{ marginBottom: '24px' }}>
-          <h2 className="section-title">Все машины</h2>
-        </div>
-
-        <div className="machines-grid">
-          {machines.map((machine) => (
-            <MachineCard 
-              key={machine.id} 
-              machine={machine} 
-              onSelect={handleSelectMachine} 
-            />
-          ))}
-        </div>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                machines={machines}
+                isLoggedIn={!!user}
+                onRequireLogin={() => setIsAuthOpen(true)}
+                onConfirmBooking={handleConfirmBooking}
+              />
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              user ? (
+                <ProfilePage
+                  user={user}
+                  bookings={bookings}
+                  onUpdateProfile={handleUpdateProfile}
+                  onCancelBooking={handleCancelBooking}
+                  onLogout={handleLogout}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              isAdmin ? (
+                <AdminPage
+                  laundry={laundry}
+                  machines={machines}
+                  onRenameLaundry={handleRenameLaundry}
+                  onCreateMachine={handleCreateMachine}
+                  onUpdateMachine={handleUpdateMachine}
+                  onDeleteMachine={handleDeleteMachine}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
-      {/* Модальные окна */}
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
-        onLogin={handleLogin} 
-      />
-
-      <BookingModal 
-        machine={selectedMachineForBooking} 
-        isOpen={!!selectedMachineForBooking} 
-        onClose={() => setSelectedMachineForBooking(null)} 
-        onConfirmBooking={handleConfirmBooking}
-        isLoggedIn={!!user}
-        onRequireLogin={() => setIsAuthOpen(true)}
-      />
-
-      <ProfileModal 
-        isOpen={isProfileOpen} 
-        onClose={() => setIsProfileOpen(false)} 
-        user={user}
-        bookings={bookings}
-        onCancelBooking={handleCancelBooking}
-        onLogout={handleLogout}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLogin={handleLogin}
       />
     </div>
   );

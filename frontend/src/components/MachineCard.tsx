@@ -12,6 +12,7 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
       case 'free': return 'card-free';
       case 'in_use': return 'card-in-use';
       case 'waiting': return 'card-waiting';
+      case 'maintenance': return 'card-maintenance';
     }
   };
 
@@ -59,6 +60,14 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
             <p className="card-desc">Цикл завершён в {machine.endTime}</p>
           </div>
         )}
+
+        {machine.status === 'maintenance' && (
+          <div>
+            <div className="status-badge">🔧 На обслуживании</div>
+            <h3 className="card-title">Временно недоступна</h3>
+            <p className="card-desc">Выберите другую машину.</p>
+          </div>
+        )}
       </div>
 
       <div>
@@ -74,6 +83,10 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
                 style={{ width: `${machine.progress}%` }}
               ></div>
             </div>
+          </div>
+        ) : machine.status === 'maintenance' ? (
+          <div className="card-footer-link">
+            <span>Недоступна</span>
           </div>
         ) : (
           <div className="card-footer-link">
