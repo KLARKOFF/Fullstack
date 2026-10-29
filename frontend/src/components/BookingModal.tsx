@@ -11,6 +11,7 @@ import {
   toDateInputValue,
 } from '../utils/time';
 import type { Slot } from '../utils/time';
+import { errorText } from '../utils/errorText';
 
 interface BookingModalProps {
   machine: Machine | null;
@@ -22,9 +23,6 @@ interface BookingModalProps {
   isLoggedIn: boolean;
   onRequireLogin: () => void;
 }
-
-export const errorText = (e: unknown, fallback: string) =>
-  e instanceof Error ? e.message : fallback;
 
 const fieldStyle = { width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' };
 

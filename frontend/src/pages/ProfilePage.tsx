@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import type { ProfileUpdate } from '../api';
 import { MACHINE_TYPE_LABELS } from '../types';
 import type { Booking, User } from '../types';
+import { useNow } from '../hooks/useNow';
+import { errorText } from '../utils/errorText';
+import { formatInterval, ms } from '../utils/time';
 
 interface ProfilePageProps {
   user: User;
@@ -10,9 +13,6 @@ interface ProfilePageProps {
   onCancelBooking: (bookingId: string) => Promise<void>;
   onLogout: () => void;
 }
-
-const errorText = (e: unknown, fallback: string) =>
-  e instanceof Error ? e.message : fallback;
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({
   user,
@@ -26,6 +26,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const [room, setRoom] = useState('');
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const now = useNow();
+
+  // Активные брони — те, что ещё не закончились; прошедшие в списке не показываем
+  const activeBookings = bookings
+    .filter((b) => ms(b.endAt) > now.getTime())
+    .sort((a, b) => ms(a.startAt) - ms(b.startAt));
 
   const startEditing = () => {
     setName(user.name);
@@ -49,7 +55,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   };
 
   const handleCancelBooking = async (booking: Booking) => {
-    if (!confirm(`Отменить бронь машины №${booking.machineId} на ${booking.time}?`)) return;
+    if (!confirm(`Отменить бронь машины №${booking.machineId} (${formatInterval(booking.startAt, booking.endAt)})?`)) return;
     try {
       await onCancelBooking(booking.id);
     } catch (err) {
@@ -128,21 +134,25 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       <section className="panel">
         <h3 className="panel-title">Мои бронирования</h3>
 
-        {bookings.length === 0 ? (
+        {activeBookings.length === 0 ? (
           <p className="muted">У вас нет активных броней. Выберите свободную машину на главной странице.</p>
         ) : (
           <ul className="booking-list">
-            {bookings.map((booking) => (
+            {activeBookings.map((booking) => (
               <li key={booking.id} className="booking-item">
                 <div>
                   <p className="booking-title">
                     Машина №{booking.machineId} · {MACHINE_TYPE_LABELS[booking.machineType]}
                   </p>
-                  <p className="muted">{booking.date}, {booking.time}</p>
+                  <p className="muted">{formatInterval(booking.startAt, booking.endAt)}</p>
                 </div>
-                <button className="btn btn-danger btn-small" onClick={() => handleCancelBooking(booking)}>
-                  Отменить
-                </button>
+                {ms(booking.startAt) > now.getTime() ? (
+                  <button className="btn btn-danger btn-small" onClick={() => handleCancelBooking(booking)}>
+                    Отменить
+                  </button>
+                ) : (
+                  <span className="muted">Идёт сейчас</span>
+                )}
               </li>
             ))}
           </ul>

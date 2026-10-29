@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { MachineInput, MachineUpdate } from '../api';
 import { MACHINE_STATUS_LABELS, MACHINE_TYPE_LABELS } from '../types';
-import type { Laundry, Machine, MachineStatus, MachineType } from '../types';
+import type { Laundry, Machine, MachineType } from '../types';
+import { errorText } from '../utils/errorText';
 
 interface AdminPageProps {
   laundry: Laundry | null;
@@ -12,10 +13,8 @@ interface AdminPageProps {
   onDeleteMachine: (id: string) => Promise<void>;
 }
 
-const errorText = (e: unknown, fallback: string) =>
-  e instanceof Error ? e.message : fallback;
-
-const EDITABLE_STATUSES: MachineStatus[] = ['free', 'maintenance'];
+const availabilityLabel = (isUnderMaintenance: boolean) =>
+  isUnderMaintenance ? MACHINE_STATUS_LABELS.maintenance : 'Доступна';
 
 export const AdminPage: React.FC<AdminPageProps> = ({
   laundry,
@@ -128,16 +127,14 @@ const MachineRow: React.FC<MachineRowProps> = ({ machine, onUpdate, onDelete }) 
   const [isEditing, setIsEditing] = useState(false);
   const [type, setType] = useState<MachineType>(machine.type);
   const [capacity, setCapacity] = useState(String(machine.capacity));
-  const [status, setStatus] = useState<MachineStatus>(machine.status);
+  const [isUnderMaintenance, setIsUnderMaintenance] = useState(machine.isUnderMaintenance);
   const [error, setError] = useState('');
   const [isBusy, setIsBusy] = useState(false);
-
-  const isRunning = !EDITABLE_STATUSES.includes(machine.status);
 
   const startEditing = () => {
     setType(machine.type);
     setCapacity(String(machine.capacity));
-    setStatus(machine.status);
+    setIsUnderMaintenance(machine.isUnderMaintenance);
     setError('');
     setIsEditing(true);
   };
@@ -146,9 +143,7 @@ const MachineRow: React.FC<MachineRowProps> = ({ machine, onUpdate, onDelete }) 
     setIsBusy(true);
     setError('');
     try {
-      const patch: MachineUpdate = { type, capacity: Number(capacity) };
-      if (!isRunning) patch.status = status;
-      await onUpdate(machine.id, patch);
+      await onUpdate(machine.id, { type, capacity: Number(capacity), isUnderMaintenance });
       setIsEditing(false);
     } catch (err) {
       setError(errorText(err, 'Не удалось сохранить машину'));
@@ -176,8 +171,8 @@ const MachineRow: React.FC<MachineRowProps> = ({ machine, onUpdate, onDelete }) 
           <td>{MACHINE_TYPE_LABELS[machine.type]}</td>
           <td>{machine.capacity} кг</td>
           <td>
-            <span className={`status-pill status-${machine.status}`}>
-              {MACHINE_STATUS_LABELS[machine.status]}
+            <span className={`status-pill status-${machine.isUnderMaintenance ? 'maintenance' : 'free'}`}>
+              {availabilityLabel(machine.isUnderMaintenance)}
             </span>
           </td>
           <td className="cell-actions">
@@ -219,17 +214,14 @@ const MachineRow: React.FC<MachineRowProps> = ({ machine, onUpdate, onDelete }) 
           />
         </td>
         <td>
-          {isRunning ? (
-            <span className="muted" title="Статус изменится сам, когда цикл закончится">
-              {MACHINE_STATUS_LABELS[machine.status]}
-            </span>
-          ) : (
-            <select className="input" value={status} onChange={(e) => setStatus(e.target.value as MachineStatus)}>
-              {EDITABLE_STATUSES.map((s) => (
-                <option key={s} value={s}>{MACHINE_STATUS_LABELS[s]}</option>
-              ))}
-            </select>
-          )}
+          <select
+            className="input"
+            value={isUnderMaintenance ? 'maintenance' : 'available'}
+            onChange={(e) => setIsUnderMaintenance(e.target.value === 'maintenance')}
+          >
+            <option value="available">{availabilityLabel(false)}</option>
+            <option value="maintenance">{availabilityLabel(true)}</option>
+          </select>
         </td>
         <td className="cell-actions">
           <button className="btn btn-primary btn-small" onClick={handleSave} disabled={isBusy}>
@@ -265,7 +257,7 @@ const AddMachineForm: React.FC<AddMachineFormProps> = ({ onCreate }) => {
     setIsSaving(true);
     setError('');
     try {
-      await onCreate({ id: number, type, capacity: Number(capacity), status: 'free' });
+      await onCreate({ id: number, type, capacity: Number(capacity), isUnderMaintenance: false });
       setNumber('');
     } catch (err) {
       setError(errorText(err, 'Не удалось добавить машину'));
