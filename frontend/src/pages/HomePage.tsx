@@ -1,34 +1,39 @@
 import React, { useState } from 'react';
 import { MachineCard } from '../components/MachineCard';
 import { BookingModal } from '../components/BookingModal';
-import type { Machine } from '../types';
+import { useNow } from '../hooks/useNow';
+import { getMachineState } from '../utils/machineState';
+import type { Slot } from '../utils/time';
+import type { Booking, Machine } from '../types';
 
 interface HomePageProps {
   machines: Machine[];
+  schedule: Booking[];
   isLoggedIn: boolean;
   onRequireLogin: () => void;
-  onConfirmBooking: (machineId: string, time: string) => void;
+  onConfirmBooking: (machineId: string, slot: Slot) => Promise<void>;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({
   machines,
+  schedule,
   isLoggedIn,
   onRequireLogin,
   onConfirmBooking,
 }) => {
-  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
+  const now = useNow();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedMachine = machines.find((m) => m.id === selectedId) ?? null;
 
   const handleSelectMachine = (id: string) => {
     const machine = machines.find((m) => m.id === id);
     if (!machine) return;
 
-    if (machine.status === 'free') {
-      setSelectedMachine(machine);
-    } else if (machine.status === 'maintenance') {
+    if (machine.isUnderMaintenance) {
       alert('Эта машина на обслуживании. Выберите другую.');
-    } else {
-      alert('Эта машина сейчас занята или ожидает выгрузки.');
+      return;
     }
+    setSelectedId(id);
   };
 
   return (
@@ -45,6 +50,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             <MachineCard
               key={machine.id}
               machine={machine}
+              state={getMachineState(machine, schedule, now)}
+              now={now}
               onSelect={handleSelectMachine}
             />
           ))}
@@ -53,8 +60,10 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       <BookingModal
         machine={selectedMachine}
+        bookings={schedule.filter((b) => b.machineId === selectedId)}
+        now={now}
         isOpen={!!selectedMachine}
-        onClose={() => setSelectedMachine(null)}
+        onClose={() => setSelectedId(null)}
         onConfirmBooking={onConfirmBooking}
         isLoggedIn={isLoggedIn}
         onRequireLogin={onRequireLogin}

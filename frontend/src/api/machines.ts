@@ -2,19 +2,20 @@ import type { Machine } from '../types';
 import { deleteBookingsForMachine } from './bookings';
 import { ApiError, load, save } from './storage';
 
-const KEY = 'mock_machines';
+// v2: статус больше не хранится, только признак обслуживания
+const KEY = 'mock_machines_v2';
 
 const SEED: Machine[] = [
-  { id: '01', type: 'washer', capacity: 6, status: 'free' },
-  { id: '02', type: 'washer', capacity: 6, status: 'in_use', timeLeft: '24 мин', endTime: '14:56', currentStage: 'Полоскание', progress: 60 },
-  { id: '03', type: 'washer', capacity: 6, status: 'waiting', endTime: '14:24' },
-  { id: '04', type: 'washer', capacity: 8, status: 'free' },
-  { id: '05', type: 'dryer', capacity: 8, status: 'in_use', timeLeft: '12 мин', endTime: '14:44', currentStage: 'Сушка', progress: 80 },
-  { id: '06', type: 'dryer', capacity: 8, status: 'free' },
+  { id: '01', type: 'washer', capacity: 6, isUnderMaintenance: false },
+  { id: '02', type: 'washer', capacity: 6, isUnderMaintenance: false },
+  { id: '03', type: 'washer', capacity: 6, isUnderMaintenance: false },
+  { id: '04', type: 'washer', capacity: 8, isUnderMaintenance: false },
+  { id: '05', type: 'dryer', capacity: 8, isUnderMaintenance: false },
+  { id: '06', type: 'dryer', capacity: 8, isUnderMaintenance: false },
 ];
 
-export type MachineInput = Pick<Machine, 'id' | 'type' | 'capacity' | 'status'>;
-export type MachineUpdate = Partial<Pick<Machine, 'type' | 'capacity' | 'status'>>;
+export type MachineInput = Pick<Machine, 'id' | 'type' | 'capacity' | 'isUnderMaintenance'>;
+export type MachineUpdate = Partial<Omit<MachineInput, 'id'>>;
 
 const readAll = () => load<Machine[]>(KEY, SEED);
 const byId = (a: Machine, b: Machine) => a.id.localeCompare(b.id, undefined, { numeric: true });
@@ -23,19 +24,6 @@ function validateCapacity(capacity: number) {
   if (!Number.isInteger(capacity) || capacity < 1 || capacity > 30) {
     throw new ApiError('Загрузка должна быть целым числом от 1 до 30 кг', 422);
   }
-}
-
-function clearCycleData(machine: Machine): Machine {
-  const result = { ...machine };
-  if (result.status !== 'in_use') {
-    delete result.timeLeft;
-    delete result.currentStage;
-    delete result.progress;
-  }
-  if (result.status === 'free' || result.status === 'maintenance') {
-    delete result.endTime;
-  }
-  return result;
 }
 
 export async function getMachines(): Promise<Machine[]> {
@@ -55,7 +43,7 @@ export async function createMachine(data: MachineInput): Promise<Machine> {
     throw new ApiError(`Машина №${number} уже существует`, 409);
   }
 
-  const created = clearCycleData({ ...data, id: number });
+  const created: Machine = { ...data, id: number };
   save(KEY, [...machines, created].sort(byId));
   return created;
 }
@@ -69,7 +57,7 @@ export async function updateMachine(id: string, patch: MachineUpdate): Promise<M
     throw new ApiError(`Машина №${id} не найдена`, 404);
   }
 
-  const updated = clearCycleData({ ...current, ...patch });
+  const updated: Machine = { ...current, ...patch };
   save(KEY, machines.map((m) => (m.id === id ? updated : m)));
   return updated;
 }

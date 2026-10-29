@@ -1,15 +1,34 @@
-import type { Booking } from '../types';
+import type { Booking, MachineType } from '../types';
+import { MINUTE, SLOT_MINUTES } from '../utils/time';
 import { ApiError, load, save } from './storage';
 
-const KEY = 'mock_bookings';
+const KEY = 'mock_bookings_v2';
 
-const readAll = () => load<Booking[]>(KEY, []);
+function demoBooking(id: string, machineId: string, machineType: MachineType, offset: number): Booking {
+  const start = new Date();
+  start.setMinutes(0, 0, 0);
+  start.setTime(start.getTime() + offset * SLOT_MINUTES * MINUTE);
+  const end = new Date(start.getTime() + SLOT_MINUTES * MINUTE);
+  return { id, userId: 'demo', machineId, machineType, startAt: start.toISOString(), endAt: end.toISOString() };
+}
 
-export async function getBookings(userId: string): Promise<Booking[]> {
-  return readAll().filter((b) => b.userId === userId);
+const SEED: Booking[] = [
+  demoBooking('demo-1', '02', 'washer', 0),
+  demoBooking('demo-2', '05', 'dryer', 0),
+  demoBooking('demo-3', '03', 'washer', -1),
+  demoBooking('demo-4', '04', 'washer', 2),
+];
+
+const readAll = () => load<Booking[]>(KEY, SEED);
+
+export async function getSchedule(): Promise<Booking[]> {
+  return readAll();
 }
 
 export async function createBooking(data: Omit<Booking, 'id'>): Promise<Booking> {
+  if (new Date(data.endAt).getTime() <= Date.now()) {
+    throw new ApiError('Нельзя забронировать время, которое уже прошло', 422);
+  }
   const created: Booking = { ...data, id: crypto.randomUUID() };
   save(KEY, [...readAll(), created]);
   return created;

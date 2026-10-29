@@ -1,32 +1,40 @@
 import React from 'react';
-import type { Machine } from '../types';
+import { MACHINE_TYPE_LABELS } from '../types';
+import type { Machine, MachineState, MachineStatus, MachineType } from '../types';
+import { getProgress, minutesLeft } from '../utils/machineState';
+import { formatDay, formatTime } from '../utils/time';
 
 interface MachineCardProps {
   machine: Machine;
+  state: MachineState;
+  now: Date;
   onSelect: (machineId: string) => void;
 }
 
-export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) => {
-  const getStatusClass = () => {
-    switch (machine.status) {
-      case 'free': return 'card-free';
-      case 'in_use': return 'card-in-use';
-      case 'waiting': return 'card-waiting';
-      case 'maintenance': return 'card-maintenance';
-    }
-  };
+const STATUS_CLASS: Record<MachineStatus, string> = {
+  free: 'card-free',
+  in_use: 'card-in-use',
+  waiting: 'card-waiting',
+  maintenance: 'card-maintenance',
+};
 
+const CYCLE_LABELS: Record<MachineType, string> = {
+  washer: 'Стирка',
+  dryer: 'Сушка',
+};
+
+export const MachineCard: React.FC<MachineCardProps> = ({ machine, state, now, onSelect }) => {
   return (
-    <div 
+    <div
       onClick={() => onSelect(machine.id)}
-      className={`machine-card ${getStatusClass()}`}
+      className={`machine-card ${STATUS_CLASS[state.status]}`}
     >
       <div className="card-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline' }}>
             <span className="machine-number">{machine.id}</span>
             <span className="machine-type">
-              {machine.type === 'washer' ? 'Стиральная' : 'Сушильная'}
+              {MACHINE_TYPE_LABELS[machine.type]}
             </span>
           </div>
           <span className="machine-capacity">до {machine.capacity} кг</span>
@@ -34,34 +42,38 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
       </div>
 
       <div>
-        {machine.status === 'free' && (
+        {state.status === 'free' && (
           <div>
             <div className="status-badge">
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#059669' }}></span>
               Свободен
             </div>
             <h3 className="card-title">Можно запускать</h3>
-            <p className="card-desc">Барабан свободен и ждёт ваши вещи.</p>
+            <p className="card-desc">
+              {state.nextBooking
+                ? `Ближайшая бронь: ${formatDay(state.nextBooking.startAt, now)}, ${formatTime(state.nextBooking.startAt)}`
+                : 'Ближайших броней нет'}
+            </p>
           </div>
         )}
 
-        {machine.status === 'in_use' && (
+        {state.status === 'in_use' && (
           <div>
             <div className="status-badge">⏳ Используется</div>
-            <h3 className="card-title">Ещё {machine.timeLeft}</h3>
-            <p className="card-desc">Завершится в {machine.endTime}</p>
+            <h3 className="card-title">Ещё {minutesLeft(state.booking, now)} мин</h3>
+            <p className="card-desc">Завершится в {formatTime(state.booking.endAt)}</p>
           </div>
         )}
 
-        {machine.status === 'waiting' && (
+        {state.status === 'waiting' && (
           <div>
             <div className="status-badge">🔔 Ожидает выгрузки</div>
             <h3 className="card-title">Пора забрать вещи</h3>
-            <p className="card-desc">Цикл завершён в {machine.endTime}</p>
+            <p className="card-desc">Цикл завершён в {formatTime(state.booking.endAt)}</p>
           </div>
         )}
 
-        {machine.status === 'maintenance' && (
+        {state.status === 'maintenance' && (
           <div>
             <div className="status-badge">🔧 На обслуживании</div>
             <h3 className="card-title">Временно недоступна</h3>
@@ -71,20 +83,20 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onSelect }) =
       </div>
 
       <div>
-        {machine.status === 'in_use' ? (
+        {state.status === 'in_use' ? (
           <div className="progress-container">
             <div className="progress-info">
-              <span>{machine.currentStage}</span>
-              <span>{machine.progress}%</span>
+              <span>{CYCLE_LABELS[machine.type]}</span>
+              <span>{getProgress(state.booking, now)}%</span>
             </div>
             <div className="progress-bar-bg">
-              <div 
-                className="progress-bar-fill" 
-                style={{ width: `${machine.progress}%` }}
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${getProgress(state.booking, now)}%` }}
               ></div>
             </div>
           </div>
-        ) : machine.status === 'maintenance' ? (
+        ) : state.status === 'maintenance' ? (
           <div className="card-footer-link">
             <span>Недоступна</span>
           </div>

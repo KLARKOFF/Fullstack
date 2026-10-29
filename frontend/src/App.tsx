@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { AuthModal } from './components/AuthModal';
@@ -6,6 +6,8 @@ import { HomePage } from './pages/HomePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AdminPage } from './pages/AdminPage';
 import * as api from './api';
+import { formatInterval } from './utils/time';
+import type { Slot } from './utils/time';
 import type { Booking, Laundry, Machine, User } from './types';
 import './App.css';
 
@@ -15,18 +17,19 @@ export default function App() {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [laundry, setLaundry] = useState<Laundry | null>(null);
   const [user, setUser] = useState<User | null>(() => api.getSessionUser());
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [schedule, setSchedule] = useState<Booking[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   useEffect(() => {
     api.getMachines().then(setMachines);
     api.getLaundry().then(setLaundry);
+    api.getSchedule().then(setSchedule);
   }, []);
 
-  const userId = user?.id;
-  useEffect(() => {
-    if (userId) api.getBookings(userId).then(setBookings);
-  }, [userId]);
+  const myBookings = useMemo(
+    () => (user ? schedule.filter((b) => b.userId === user.id) : []),
+    [schedule, user],
+  );
 
   const handleLogin = async (name: string, email: string) => {
     setUser(await api.login(name, email));
@@ -35,7 +38,6 @@ export default function App() {
   const handleLogout = () => {
     api.logout();
     setUser(null);
-    setBookings([]);
     navigate('/');
   };
 
@@ -44,7 +46,7 @@ export default function App() {
     setUser(await api.updateProfile(user.id, patch));
   };
 
-  const handleConfirmBooking = async (machineId: string, time: string) => {
+  const handleConfirmBooking = async (machineId: string, slot: Slot) => {
     const machine = machines.find((m) => m.id === machineId);
     if (!machine || !user) return;
 
@@ -52,17 +54,17 @@ export default function App() {
       userId: user.id,
       machineId,
       machineType: machine.type,
-      time,
-      date: 'Сегодня',
+      startAt: slot.start.toISOString(),
+      endAt: slot.end.toISOString(),
     });
 
-    setBookings((prev) => [...prev, created]);
-    alert(`Машина №${machineId} забронирована на ${time}`);
+    setSchedule((prev) => [...prev, created]);
+    alert(`Машина №${machineId} забронирована: ${formatInterval(created.startAt, created.endAt)}`);
   };
 
   const handleCancelBooking = async (bookingId: string) => {
     await api.cancelBooking(bookingId);
-    setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+    setSchedule((prev) => prev.filter((b) => b.id !== bookingId));
   };
 
   const handleRenameLaundry = async (name: string) => {
@@ -82,7 +84,7 @@ export default function App() {
   const handleDeleteMachine = async (id: string) => {
     await api.deleteMachine(id);
     setMachines((prev) => prev.filter((m) => m.id !== id));
-    setBookings((prev) => prev.filter((b) => b.machineId !== id));
+    setSchedule((prev) => prev.filter((b) => b.machineId !== id));
   };
 
   const isAdmin = user?.role === 'admin';
@@ -102,6 +104,7 @@ export default function App() {
             element={
               <HomePage
                 machines={machines}
+                schedule={schedule}
                 isLoggedIn={!!user}
                 onRequireLogin={() => setIsAuthOpen(true)}
                 onConfirmBooking={handleConfirmBooking}
@@ -114,7 +117,7 @@ export default function App() {
               user ? (
                 <ProfilePage
                   user={user}
-                  bookings={bookings}
+                  bookings={myBookings}
                   onUpdateProfile={handleUpdateProfile}
                   onCancelBooking={handleCancelBooking}
                   onLogout={handleLogout}
