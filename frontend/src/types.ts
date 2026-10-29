@@ -5,11 +5,7 @@ export interface Machine {
   id: string;
   type: MachineType;
   capacity: number;
-  status: MachineStatus;
-  timeLeft?: string;
-  endTime?: string;
-  currentStage?: string;
-  progress?: number;
+  isUnderMaintenance: boolean;
 }
 
 export interface Booking {
@@ -17,9 +13,15 @@ export interface Booking {
   userId: string;
   machineId: string;
   machineType: MachineType;
-  time: string; // Например, "16:00 - 17:00"
-  date: string;
+  startAt: string;
+  endAt: string;
 }
+
+export type MachineState =
+  | { status: 'maintenance' }
+  | { status: 'free'; nextBooking?: Booking }
+  | { status: 'in_use'; booking: Booking }
+  | { status: 'waiting'; booking: Booking };
 
 export type UserRole = 'user' | 'admin';
 
