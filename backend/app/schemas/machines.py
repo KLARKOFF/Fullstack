@@ -1,5 +1,6 @@
 from typing import Annotated
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, Field
+from app.models import MachineType
 from app.schemas.base import ReadModel
 
 MachineNumber = Annotated[int, Field(ge=1, le=999)]
