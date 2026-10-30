@@ -4,6 +4,8 @@ BACKEND  := backend
 FRONTEND := frontend
 VENV     := .venv
 
+.PHONY: help install install-backend install-frontend db db-reset backend frontend dev
+
 install: 
 	install-backend install-frontend
 
