@@ -1,5 +1,4 @@
 from typing import Annotated
-from app.models import MachineType
 from pydantic import BaseModel, StringConstraints
 from app.schemas.base import ReadModel
 
