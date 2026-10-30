@@ -1,10 +1,15 @@
+from enum import StrEnum
 from typing import TYPE_CHECKING
-from sqlalchemy import String
+from sqlalchemy import CheckConstraint, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
 if TYPE_CHECKING:
-    from app.models.machine import Machine
-    from app.models.user import User
+    from app.models.bookings import Booking
+    from app.models.laundries import Laundry
+
+class MachineType(StrEnum):
+    washer = "washer"
+    dryer = "dryer"
 
 class Machine(Base):
     __tablename__ = "machines"
@@ -21,7 +26,7 @@ class Machine(Base):
     capacity: Mapped[int]
     is_under_maintenance: Mapped[bool] = mapped_column(default=False)
 
-    laundry: Mapped[Laundry] = relationship(back_populates="machines")
+    laundry: Mapped["Laundry"] = relationship(back_populates="machines")
     bookings: Mapped[list["Booking"]] = relationship(
         back_populates="machine", cascade="all, delete-orphan", passive_deletes=True
     )

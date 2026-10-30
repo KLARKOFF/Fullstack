@@ -4,8 +4,8 @@ from sqlalchemy import Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
 if TYPE_CHECKING:
-    from app.models.booking import Booking
-    from app.models.laundry import Laundry
+    from app.models.bookings import Booking
+    from app.models.laundries import Laundry
 
 class UserRole(StrEnum):
     user = "user"

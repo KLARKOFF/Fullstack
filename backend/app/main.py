@@ -1,12 +1,10 @@
 from typing import Annotated
-
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
-
 from app.api.routes import bookings, laundries, machines, users
 from app.core.config import settings
 from app.core.errors import AppError
@@ -22,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Из core/errors.py
 @app.exception_handler(AppError)
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
