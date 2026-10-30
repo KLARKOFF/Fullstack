@@ -1,11 +1,6 @@
-from app.schemas.booking import BookingCreate, BookingRead, BookingUpdate
-from app.schemas.laundry import LaundryCreate, LaundryRead, LaundryUpdate
-from app.schemas.machine import MachineCreate, MachineRead, MachineUpdate
-from app.schemas.user import UserCreate, UserRead, UserUpdate
+from app.models.bookings import Booking
+from app.models.laundries import Laundry
+from app.models.machines import Machine, MachineType
+from app.models.users import User, UserRole
 
-__all__ = [
-    "BookingCreate", "BookingRead", "BookingUpdate",
-    "LaundryCreate", "LaundryRead", "LaundryUpdate",
-    "MachineCreate", "MachineRead", "MachineUpdate",
-    "UserCreate", "UserRead", "UserUpdate",
-]
+__all__ = ["Booking", "Laundry", "Machine", "MachineType", "User", "UserRole"]
