@@ -1,8 +1,12 @@
 from datetime import datetime
-from enum import StrEnum
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, String, UniqueConstraint, func
+from typing import TYPE_CHECKING
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
+if TYPE_CHECKING:
+    from app.models.machine import Machine
+    from app.models.user import User
+
 
 class Booking(Base):
     __tablename__ = "bookings"
@@ -18,5 +22,5 @@ class Booking(Base):
     end_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped[User] = relationship(back_populates="bookings")
-    machine: Mapped[Machine] = relationship(back_populates="bookings")
+    user: Mapped["User"] = relationship(back_populates="bookings")
+    machine: Mapped["Machine"] = relationship(back_populates="bookings")

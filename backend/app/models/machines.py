@@ -1,23 +1,10 @@
-from datetime import datetime
-from enum import StrEnum
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, String, UniqueConstraint, func
+from typing import TYPE_CHECKING
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
-
-class MachineType(StrEnum):
-    washer = "washer"
-    dryer = "dryer"
-
-
-class Laundry(Base):
-    __tablename__ = "laundries"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100))
-
-    machines: Mapped[list["Machine"]] = relationship(back_populates="laundry")
-    users: Mapped[list["User"]] = relationship(back_populates="laundry")
-
+if TYPE_CHECKING:
+    from app.models.machine import Machine
+    from app.models.user import User
 
 class Machine(Base):
     __tablename__ = "machines"
