@@ -1,10 +1,13 @@
 from collections.abc import Sequence
+
 from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
+
 from app.core.errors import ConflictError
 from app.models import Laundry, Machine
 from app.schemas import LaundryCreate, LaundryUpdate
 from app.services.common import apply_patch, get_or_404
+
 
 def list_laundries(db: Session) -> Sequence[Laundry]:
   return db.scalars(select(Laundry).order_by(Laundry.id)).all()

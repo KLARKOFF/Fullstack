@@ -1,9 +1,12 @@
 from collections.abc import Sequence
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
 from app.models import Laundry, User
 from app.schemas import UserCreate, UserUpdate
 from app.services.common import apply_patch, commit_or_conflict, get_or_404
+
 
 def list_users(db: Session) -> Sequence[User]:
   return db.scalars(select(User).order_by(User.id)).all()

@@ -1,5 +1,7 @@
 from typing import Annotated
+
 from pydantic import BaseModel, EmailStr, Field, StringConstraints
+
 from app.models import UserRole
 from app.schemas.base import ReadModel
 

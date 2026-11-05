@@ -1,7 +1,9 @@
 from collections.abc import Sequence
 from datetime import UTC, datetime
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+
 from app.core.errors import ConflictError
 from app.models import Booking, Laundry, Machine
 from app.schemas import MachineCreate, MachineUpdate

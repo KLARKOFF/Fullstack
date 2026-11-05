@@ -1,5 +1,6 @@
 from fastapi import APIRouter, status
 from pydantic import AwareDatetime
+
 from app.api.deps import DbSession
 from app.schemas import BookingCreate, BookingRead, BookingUpdate
 from app.services import bookings

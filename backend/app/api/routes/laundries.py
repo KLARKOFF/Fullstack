@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+
 from app.api.deps import DbSession
 from app.schemas import LaundryCreate, LaundryRead, LaundryUpdate
 from app.services import laundries

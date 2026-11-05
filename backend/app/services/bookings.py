@@ -1,8 +1,10 @@
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
 from app.core.config import settings
 from app.core.errors import BusinessRuleError, ConflictError
 from app.models import Booking, Machine, User

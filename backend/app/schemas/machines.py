@@ -1,5 +1,7 @@
 from typing import Annotated
+
 from pydantic import BaseModel, Field
+
 from app.models import MachineType
 from app.schemas.base import ReadModel
 

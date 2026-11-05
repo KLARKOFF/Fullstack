@@ -1,6 +1,8 @@
 from typing import Any, TypeVar
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
 from app.core.errors import ConflictError, NotFoundError
 from app.db.database import Base
 

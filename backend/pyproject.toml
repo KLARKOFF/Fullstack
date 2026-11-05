@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "I", 
+    "UP",
+    "B",
+    #"TC",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]   # чтобы импорты из app шли отдельной группой
