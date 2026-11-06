@@ -4,12 +4,12 @@ BACKEND  := backend
 FRONTEND := frontend
 VENV     := .venv
 
-.PHONY: help install install-backend install-frontend db db-reset backend frontend dev
+.PHONY: install install-backend install-frontend db db-reset backend frontend dev
 
-install: 
-	install-backend install-frontend
+# установка зависимостей
+install: install-backend install-frontend
 
-install-backend: 
+install-backend:
 	cd $(BACKEND) && python -m venv $(VENV)
 	cd $(BACKEND) && $(VENV)/bin/pip install -r requirements.txt
 	@if [ ! -f $(BACKEND)/.env ]; then \
@@ -17,20 +17,20 @@ install-backend:
 		echo "Создан $(BACKEND)/.env — впишите в DATABASE_URL свой пароль"; \
 	fi
 
-install-frontend: 
+install-frontend:
 	cd $(FRONTEND) && npm install
 
-db:
+db: ## создать таблицы и заполнить демо-данными
 	cd $(BACKEND) && $(VENV)/bin/python -m app.db.init_db --seed
 
-db-reset: ## пересоздать таблицы с нуля 
+db-reset: ## пересоздать таблицы с нуля
 	cd $(BACKEND) && $(VENV)/bin/python -m app.db.init_db --reset --seed
 
-backend: 
+backend:
 	cd $(BACKEND) && $(VENV)/bin/uvicorn app.main:app --reload
 
 frontend:
 	cd $(FRONTEND) && npm run dev
 
-dev:
+dev: ## запустить backend и frontend одновременно
 	$(MAKE) -j2 backend frontend
