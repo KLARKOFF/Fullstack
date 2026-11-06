@@ -1,0 +1,885 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 32px;
+  border-bottom: 1px solid #ccc;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  color: inherit;
+  text-decoration: none;
+  background: #f9fafb;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.profile-btn:hover {
+  background: #f3f4f6;
+}
+
+.profile-btn.active {
+  border-color: #047857;
+  color: #047857;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.machines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.machine-card {
+  padding: 24px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+}
+
+.card-maintenance {
+  cursor: not-allowed;
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.machine-number {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.machine-type {
+  font-size: 14px;
+  color: #666;
+  margin-left: 8px;
+}
+
+.machine-capacity {
+  font-size: 12px;
+  color: #888;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.progress-container {
+  margin-top: 8px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #333;
+}
+
+.card-footer-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.page {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-wide {
+  max-width: 900px;
+}
+
+.panel {
+  padding: 24px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.panel-header .panel-title {
+  margin-bottom: 0;
+}
+
+.muted {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.info-list {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  row-gap: 10px;
+  font-size: 14px;
+}
+
+.info-list dt {
+  color: #6b7280;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.field-grow {
+  flex: 1;
+  min-width: 220px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.input-narrow {
+  width: 90px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 8px;
+}
+
+.btn {
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:focus-visible,
+.profile-btn:focus-visible,
+.input:focus-visible {
+  outline: 2px solid #047857;
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: #047857;
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: #ccc;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.booking-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.booking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.booking-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th {
+  text-align: left;
+  font-weight: normal;
+  color: #6b7280;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.admin-table td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.row-editing td {
+  background: #f9fafb;
+}
+
+.cell-number {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.cell-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cell-actions .btn + .btn {
+  margin-left: 6px;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.status-free { background: #d1fae5; border-color: #a7f3d0; }
+.status-in_use { background: #e0e7ff; border-color: #c7d2fe; }
+.status-waiting { background: #fef3c7; border-color: #fde68a; }
+.status-maintenance { background: #f3f4f6; color: #6b7280; }
+
+@media (max-width: 640px) {
+  .header {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .info-list {
+    grid-template-columns: 1fr;
+    row-gap: 2px;
+  }
+
+  .info-list dd {
+    margin-bottom: 8px;
+  }
+}
+
+/* ===== ЛР №3: общие компоненты shared/ui и валидация форм ===== */
+
+.page-title {
+  margin-bottom: 24px;
+}
+
+.machine-heading {
+  display: flex;
+  align-items: baseline;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background-color: #059669;
+}
+
+.modal-content:focus {
+  outline: none;
+}
+
+/* Поля в строке выравниваем по верху: под полем может появиться ошибка */
+.form-inline {
+  align-items: flex-start;
+}
+
+/* Кнопка в строке формы встаёт вровень с полями (высота подписи + отступ) */
+.form-inline > .btn {
+  margin-top: 22px;
+}
+
+.field-label {
+  line-height: 18px;
+}
+
+.field-error {
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.input-invalid {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.input-invalid:focus-visible {
+  outline-color: #dc2626;
+}
+
+.btn-link {
+  padding: 0;
+  background: none;
+  color: #047857;
+  font-weight: bold;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.auth-switch {
+  margin-top: 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.hint {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 4px;
+}
+
+/* Скрыть визуально, но оставить для экранных дикторов */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ===== ЛР №3: состояния загрузки, уведомления и анимации ===== */
+
+:root {
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 0.15s;
+  --duration: 0.25s;
+}
+
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn {
+  transition: background-color var(--duration-fast), border-color var(--duration-fast), opacity var(--duration-fast),
+    transform var(--duration-fast);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-danger-solid {
+  background: #dc2626;
+  color: #fff;
+  font-weight: bold;
+}
+
+.form-actions-end {
+  justify-content: flex-end;
+}
+
+/* --- Карточки машин: цвет статуса, наведение, появление «лесенкой» --- */
+
+.machine-card {
+  transition: background-color 0.4s, border-color 0.4s, transform var(--duration-fast), box-shadow var(--duration-fast);
+  animation: fade-slide-up 0.35s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.machine-card:not(.card-maintenance):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.machine-card:focus-visible {
+  outline: 2px solid #047857;
+  outline-offset: 2px;
+}
+
+.card-in-use {
+  border-color: #c7d2fe;
+  background: #f5f7ff;
+}
+
+.card-waiting {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.card-arrow {
+  transition: transform var(--duration-fast);
+}
+
+.machine-card:hover .card-arrow {
+  transform: translate(2px, -2px);
+}
+
+.progress-bar-fill {
+  transition: width 0.6s var(--ease-out);
+}
+
+.machine-card-skeleton {
+  cursor: default;
+}
+
+/* --- Скелетоны --- */
+
+.skeleton {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-gap {
+  height: 8px;
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* --- Пустое состояние и ошибка --- */
+
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  animation: fade-in var(--duration) ease-out;
+}
+
+.state-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.state-icon {
+  font-size: 28px;
+}
+
+.state-title {
+  font-weight: bold;
+}
+
+/* --- Модальные окна: появление и закрытие --- */
+
+.modal-overlay {
+  animation: fade-in 0.2s ease-out;
+}
+
+.modal-overlay .modal-content {
+  animation: modal-in var(--duration) var(--ease-out);
+}
+
+.modal-overlay.is-closing {
+  pointer-events: none;
+  animation: fade-out 0.18s ease-in forwards;
+}
+
+.modal-overlay.is-closing .modal-content {
+  animation: modal-out 0.18s ease-in forwards;
+}
+
+/* --- Формы --- */
+
+.field-error {
+  animation: fade-slide-down var(--duration-fast) ease-out;
+}
+
+.input {
+  transition: border-color var(--duration-fast), background-color var(--duration-fast);
+}
+
+.field-appear,
+.form-appear {
+  animation: fade-slide-down var(--duration) var(--ease-out);
+}
+
+.row-editing td {
+  animation: row-highlight 0.8s ease-out;
+}
+
+/* --- Списки и страницы --- */
+
+.booking-item {
+  animation: fade-slide-up var(--duration) var(--ease-out) backwards;
+}
+
+.route-transition {
+  animation: fade-slide-up var(--duration) var(--ease-out);
+}
+
+/* --- Уведомления --- */
+
+.toast-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(380px, calc(100vw - 32px));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #047857;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  animation: toast-in var(--duration) var(--ease-out);
+}
+
+.toast.is-leaving {
+  animation: toast-out 0.2s ease-in forwards;
+}
+
+.toast-error {
+  border-left-color: #dc2626;
+}
+
+.toast-info {
+  border-left-color: #6b7280;
+}
+
+.toast-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  background: #047857;
+  border-radius: 50%;
+}
+
+.toast-error .toast-icon {
+  background: #dc2626;
+}
+
+.toast-info .toast-icon {
+  background: #6b7280;
+}
+
+.toast-message {
+  flex: 1;
+}
+
+/* --- Ключевые кадры --- */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fade-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes row-highlight {
+  from {
+    background-color: #d1fae5;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 50%;
+  }
+  to {
+    background-position: 0 50%;
+  }
+}
+
+/* Если в системе включено «уменьшить движение» — анимации почти мгновенные.
+   Длительность не нулевая, чтобы события animationend всё равно срабатывали
+   (по ним закрываются модальные окна и уведомления). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
